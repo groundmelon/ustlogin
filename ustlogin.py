@@ -101,7 +101,7 @@ def main():
 	print(r.text)
 	print("----------------------------------------")
 
-	return
+	return 0
 
 if __name__ == "__main__":
 	sys.exit(main())
