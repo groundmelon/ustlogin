@@ -5,6 +5,7 @@ import HTMLParser
 import sys
 import getpass
 import os
+import subprocess
 
 default_itsc_username = os.environ['UST_ITSC_USERNAME']
 
@@ -75,7 +76,9 @@ def main():
 	post_url = parser.get_post_url()
 
 	if (not post_data.has_key('mac')) and (not post_data.has_key('token')):
-		print_color("ERROR: Cannot find login form. You might have been logged in.", ANSI_COLOR_RED)
+		msgstr = "ERROR: Cannot find login form. You might have been logged in."
+		print_color(msgstr, ANSI_COLOR_RED)
+		subprocess.Popen(['notify-send', msgstr])
 		return -1
 
 	post_data['user'] = raw_input('ITSC Username [%s]:'%default_itsc_username)
@@ -90,7 +93,9 @@ def main():
 
 	print_color("Submitting login information...", ANSI_COLOR_YELLOW)
 	r = requests.post(post_url, data=post_data, verify=False)
-	print_color("Login information submitted with return code %d"%r.status_code, ANSI_COLOR_GREEN)
+	msgstr = "Login information submitted with return code %d"%r.status_code
+	print_color(msgstr, ANSI_COLOR_GREEN)
+	subprocess.Popen(['notify-send', msgstr])
 
 	print("-------------- response ----------------")
 	print(r.text)
