@@ -25,6 +25,8 @@ class USTLoginPageParser(HTMLParser.HTMLParser):
 		HTMLParser.HTMLParser.__init__(self)
 		self.post_data = dict()
 		self.post_url = None
+		self.handling_title = False
+		self.title_str = None
 
 	def handle_starttag(self, tag, attrs):
 		if tag=='input':
@@ -45,13 +47,16 @@ class USTLoginPageParser(HTMLParser.HTMLParser):
 					 value = attr[1]
 			print("post url: <%s>"%value)
 			self.post_url = value
-
+		elif tag=='title':
+			self.handling_title = True
 
 	def handle_endtag(self, tag):
-		pass
+		if tag=='title':
+			self.handling_title = False
 
 	def handle_data(self, data):
-		pass
+		if self.handling_title:
+			self.title_str = data;
 
 	def get_post_url(self):
 		return self.post_url
@@ -95,7 +100,14 @@ def main():
 	r = requests.post(post_url, data=post_data, verify=False)
 	msgstr = "Login information submitted with return code %d"%r.status_code
 	print_color(msgstr, ANSI_COLOR_GREEN)
+	parser.feed(r.text)
+	if (parser.title_str.find("Welcome")!=-1):
+		msgstr = parser.title_str
+	else:
+		print("debug:<title>%s<title/>"%(parser.title_str))
+		msgstr = "Something went wrong when login, please check."
 	subprocess.Popen(['notify-send', msgstr])
+
 
 	print("-------------- response ----------------")
 	print(r.text)
